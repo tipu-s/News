@@ -1,5 +1,6 @@
 package com.androiddevs.mvvmnewsapp.adapter
 
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.androiddevs.mvvmnewsapp.R
 import com.androiddevs.mvvmnewsapp.model.Article
+import com.androiddevs.mvvmnewsapp.utility.Constants.Companion.IMAGES
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.item_article_preview.view.*
 
@@ -48,6 +50,10 @@ class NewsAdapter: RecyclerView.Adapter<NewsAdapter.ArticleViewHolder>() {
             setOnClickListener {
                 onItemClickListener?.let { it(curArticle) }
             }
+
+            ivArticleImage.setImageResource(
+                IMAGES.random()
+            )
         }
     }
 
