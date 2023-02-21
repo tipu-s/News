@@ -66,11 +66,11 @@ class BreakingNewsFragment: Fragment(R.layout.fragment_breaking_news) {
         })
     }
 
-    var isLoading = false
-    var isLastPage = false
-    var isScrolling = false
+    private var isLoading = false
+    private var isLastPage = false
+    private var isScrolling = false
 
-    val scrollListener = object: RecyclerView.OnScrollListener() {
+    private val scrollListener = object: RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
             if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
@@ -93,14 +93,14 @@ class BreakingNewsFragment: Fragment(R.layout.fragment_breaking_news) {
 
             val shouldPaginate = isNotLoadingAndNotLastPage && isAtLastItem &&
                     isNotAtBegining && isTotalMoreThanVisible && isScrolling
-            Log.d("BreakingNewsFragment","isNotLoadingAndNotLastPage: $isNotLoadingAndNotLastPage" +
-                    " && isLoading: $isLoading" +
-                    " && isLastPage: $isLastPage" +
-                    " && isAtLastItem: $isAtLastItem" +
-                    " isNotAtBegining: $isNotAtBegining" +
-                    " isTotalMoreThanVisible: $isTotalMoreThanVisible" +
-                    " isScrolling: $isScrolling")
-            Log.d("BreakingNewsFragment", "ShouldPaginate: $shouldPaginate")
+//            Log.d("BreakingNewsFragment","isNotLoadingAndNotLastPage: $isNotLoadingAndNotLastPage" +
+//                    " && isLoading: $isLoading" +
+//                    " && isLastPage: $isLastPage" +
+//                    " && isAtLastItem: $isAtLastItem" +
+//                    " isNotAtBegining: $isNotAtBegining" +
+//                    " isTotalMoreThanVisible: $isTotalMoreThanVisible" +
+//                    " isScrolling: $isScrolling")
+//            Log.d("BreakingNewsFragment", "ShouldPaginate: $shouldPaginate")
             if (shouldPaginate) {
                 viewModel.getBreakingNews("us")
                 isScrolling = false
@@ -109,6 +109,7 @@ class BreakingNewsFragment: Fragment(R.layout.fragment_breaking_news) {
     }
 
     private fun setupRecyclerView() {
+        Log.d(TAG, "$TAG in setupRecyclerView")
         newsAdapter = NewsAdapter()
         rvBreakingNews.apply {
             adapter = newsAdapter

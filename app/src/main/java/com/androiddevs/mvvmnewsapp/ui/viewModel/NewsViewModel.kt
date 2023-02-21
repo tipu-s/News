@@ -27,8 +27,6 @@ class NewsViewModel(
     app: Application,
     val repository: NewsRepository
 ): AndroidViewModel(app) {
-    val _savedArticle = MutableStateFlow<List<Article>>(emptyList())
-    val savedArticle: StateFlow<List<Article>> = _savedArticle
 
     private val _breakingNews = MutableLiveData<Resource<NewsResponse>>()
     val breakingNews: LiveData<Resource<NewsResponse>> = _breakingNews
@@ -42,7 +40,6 @@ class NewsViewModel(
     init {
         _breakingNews.value = Resource.Loading()
         getBreakingNews("us")
-        getSavedArticles()
     }
 
     private suspend fun safeSearchNews(searchQuery: String) {
@@ -116,15 +113,6 @@ class NewsViewModel(
 
     fun insertArticle(article: Article) = viewModelScope.launch {
         repository.insertArticle(article)
-    }
-    fun deleteArticle(article: Article) = viewModelScope.launch {
-        repository.deleteArticle(article)
-    }
-
-    fun getSavedArticles() = viewModelScope.launch {
-        repository.getSavedArticles().collectLatest {
-            _savedArticle.value = it
-        }
     }
 
     private fun hasInternetConnection(): Boolean {

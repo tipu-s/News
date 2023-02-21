@@ -3,6 +3,7 @@ package com.androiddevs.mvvmnewsapp.ui.fragments
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -10,19 +11,28 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.androiddevs.mvvmnewsapp.R
 import com.androiddevs.mvvmnewsapp.adapter.NewsAdapter
+import com.androiddevs.mvvmnewsapp.db.ArticleDatabase
+import com.androiddevs.mvvmnewsapp.repository.NewsRepository
 import com.androiddevs.mvvmnewsapp.ui.NewsActivity
 import com.androiddevs.mvvmnewsapp.ui.viewModel.NewsViewModel
+import com.androiddevs.mvvmnewsapp.ui.viewModel.NewsViewModelProviderFactory
+import com.androiddevs.mvvmnewsapp.ui.viewModel.SavedNewsViewModel
+import com.androiddevs.mvvmnewsapp.ui.viewModel.SavedNewsViewModelProviderFactory
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_saved_news.*
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class SavedNewsFragment: Fragment(R.layout.fragment_saved_news) {
-    lateinit var viewModel: NewsViewModel
+    lateinit var viewModel: SavedNewsViewModel
     lateinit var newsAdapter: NewsAdapter
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = (activity as NewsActivity).viewModel
+
+        val repository = NewsRepository(ArticleDatabase(context!!))
+        val viewModelProviderFactory = SavedNewsViewModelProviderFactory(repository)
+        viewModel = ViewModelProvider(this, viewModelProviderFactory).get(SavedNewsViewModel::class.java)
 
         setupRecyclerView()
         newsAdapter.setOnItemClickListener {
