@@ -16,6 +16,10 @@ import com.androiddevs.mvvmnewsapp.model.Article
 import com.androiddevs.mvvmnewsapp.model.NewsResponse
 import com.androiddevs.mvvmnewsapp.repository.NewsRepository
 import com.androiddevs.mvvmnewsapp.utility.Resource
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import okio.IOException
 import retrofit2.Response
@@ -24,7 +28,12 @@ class NewsViewModel(
     app: Application,
     val repository: NewsRepository
 ): AndroidViewModel(app) {
-    val breakingNews: MutableLiveData<Resource<NewsResponse>> = MutableLiveData()
+    val _savedArticle = MutableStateFlow<List<Article>>(emptyList())
+    val savedArticle: StateFlow<List<Article>> = _savedArticle
+
+    private val _breakingNews = MutableLiveData<Resource<NewsResponse>>()
+    val breakingNews: LiveData<Resource<NewsResponse>> = _breakingNews
+
     var breakingNewsPage = 1
     var breakingNewsResponse: NewsResponse? = null
 
@@ -32,6 +41,7 @@ class NewsViewModel(
     var searchNewsPage = 1
 
     init {
+        _breakingNews.value = Resource.Loading()
         getBreakingNews("us")
     }
 
@@ -53,18 +63,19 @@ class NewsViewModel(
     }
 
     private suspend fun safeBreakingNews(countryCode: String) {
-        breakingNews.postValue(Resource.Loading())
+        _breakingNews.value = Resource.Loading()
         try {
             if (hasInternetConnection()) {
-                val response = repository.getBreakingNews(countryCode, breakingNewsPage)
-                breakingNews.postValue(handleBreakingNewsResponse(response))
+                repository.getBreakingNews(countryCode, breakingNewsPage).collect {
+                    _breakingNews.value = handleBreakingNewsResponse(it)
+                }
             } else {
-                breakingNews.postValue(Resource.Error("No Internet connection"))
+                _breakingNews.value = (Resource.Error("No Internet connection"))
             }
         } catch (t: Throwable) {
             when(t) {
-                is IOException -> breakingNews.postValue(Resource.Error("IO exception"))
-                else -> breakingNews.postValue(Resource.Error("Conversion error"))
+                is IOException -> _breakingNews.value = (Resource.Error("IO exception"))
+                else -> _breakingNews.value = (Resource.Error("Conversion error"))
             }
         }
     }
@@ -110,7 +121,11 @@ class NewsViewModel(
         repository.deleteArticle(article)
     }
 
-    fun getSavedArticles() = repository.getSavedArticles()
+    fun getSavedArticles() = viewModelScope.launch {
+        repository.getSavedArticles().collectLatest {
+            _savedArticle.value = it
+        }
+    }
 
     private fun hasInternetConnection(): Boolean {
         val connectivityManager = getApplication<NewsApplication>().getSystemService(
