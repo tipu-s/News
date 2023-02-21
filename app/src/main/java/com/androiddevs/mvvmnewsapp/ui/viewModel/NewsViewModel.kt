@@ -1,4 +1,4 @@
-package com.androiddevs.mvvmnewsapp.ui
+package com.androiddevs.mvvmnewsapp.ui.viewModel
 
 import android.app.Application
 import android.content.Context
@@ -9,7 +9,6 @@ import android.os.Build
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.androiddevs.mvvmnewsapp.NewsApplication
 import com.androiddevs.mvvmnewsapp.model.Article
@@ -43,6 +42,7 @@ class NewsViewModel(
     init {
         _breakingNews.value = Resource.Loading()
         getBreakingNews("us")
+        getSavedArticles()
     }
 
     private suspend fun safeSearchNews(searchQuery: String) {
